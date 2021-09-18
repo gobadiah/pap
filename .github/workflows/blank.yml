@@ -41,3 +41,17 @@ jobs:
         with:
           push: true
           tags: gobadiah/pap:${{ github.sha }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y curl
+      - name: Download sloppy
+        run: curl -Ls https://github.com/sloppyio/cli/releases/latest/download/sloppy-linux-amd64 -o sloppy
+      - name: Make it executable
+        run: chmod +x sloppy
+      - name: Deploy
+        run: ./sloppy change --image gobadiah/pap:${{ github.sha }} pap/crawler/main
+        env:
+          SLOPPY_APITOKEN: ${{ secrets.SLOPPY_APITOKEN }}
